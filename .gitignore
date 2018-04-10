@@ -1,3 +1,4 @@
-./MNIST_data/*
-./pdb_data/*
-./venv/*
+src/MNIST_data
+src/pdb_data
+venv
+.idea/
