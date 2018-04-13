@@ -12,4 +12,4 @@
 - [jupyter版本](src/CNN_cat.ipynb)
 - [pdf版本](docs-example/CNN_cat.pdf)
 - [markdown版本](markdown_example/CNN_cat/CNN_cat.md)
-- [html版本](html-example/CNN_cat.html)
+- [html版本](docs/CNN_cat.html)
