@@ -24,5 +24,6 @@
 ## 实例3：利用tensorflow测试`MNIST`数据集
 
 - [jupyter版本](src/mnist_test.ipynb)
-
+- [pdf版本](docs-example/mnist_test.pdf)
+- [markdown版本](markdown_example/mnist_test/mnist_test.md)
 - [html版本](docs/mnist_test.html)
