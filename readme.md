@@ -12,3 +12,17 @@
 - [jupyter版本](src/CNN_cat.ipynb)
 - [pdf版本](docs-example/CNN_cat.pdf)
 - [markdown版本](markdown_example/CNN_cat/CNN_cat.md)
+- [html版本](docs/CNN_cat.html)
+
+## 实例二：利用tensorflow尝试线性拟合一个三维的面
+
+- [jupyter版本](src/linear_regression_test.ipynb)
+- [pdf版本](docs-example/linear_regression_test.pdf)
+- [markdown版本](markdown_example/linear_regression_test/linear_regression_test.md)
+- [html版本](docs/linear_regression_test.html)
+
+## 实例3：利用tensorflow测试`MNIST`数据集
+
+- [jupyter版本](src/mnist_test.ipynb)
+
+- [html版本](docs/mnist_test.html)
