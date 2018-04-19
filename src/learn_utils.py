@@ -13,26 +13,119 @@ import sys, os
 import tensorflow as tf
 sys.path.append(os.path.abspath(os.path.dirname(os.path.dirname(__file__))))
 import numpy as np
-import pandas as pd
 from sklearn.model_selection import train_test_split
+import math
 
-
-def generate_test_data():
+def generate_test_data(n,std):
     '''
     生成随机数据
+    :param: n 表示生成的矩阵大小
+    :param: 表示随机数的标准差
     :return:
     '''
     ylist = []
     xlist= []
 
-    for i in range(100):
+    for i in range(1000):
         yt = [0,0,0]
         yt[i%3]=1
         ylist.append(yt)
-        xlist.append((i%3)*np.random.normal(1,3,size = (460,460,1)))
+        xlist.append(np.random.normal(i%3,std,size = (n,n)))
     return np.array(xlist),np.array(ylist)
 
+def cnn_test(n,std):
+    '''
 
+    :param n: 生成矩阵的大小
+    :param std: 随机数的标准差
+    :return: 准确性
+    '''
+    x_dat, y_dat = generate_test_data(n, std)
+    x = tf.placeholder(tf.float32, [None, n, n])
+    y_ = tf.placeholder(tf.float32, [None, 3])
+
+    cnn_x = tf.reshape(x, [-1, n , n,1])
+
+    W_1 = tf.Variable(tf.truncated_normal(shape=[3 , 3, 1,32], stddev=0.01))
+    b_1 = tf.Variable(tf.truncated_normal(shape=[32], stddev=0.01))
+
+    W_2 = tf.Variable(tf.truncated_normal(shape=[3, 3, 32, 64], stddev=0.01))
+    b_2 = tf.Variable(tf.truncated_normal(shape=[64], stddev=0.01))
+
+    fc_1 = tf.Variable(tf.truncated_normal(shape=[64*math.floor(n/2)*math.floor(n/2),1024], stddev=0.01))
+    fc_b1 = tf.Variable(tf.truncated_normal(shape=[1024], stddev=0.01))
+    fc_2 = tf.Variable(tf.truncated_normal(shape=[1024,3], stddev=0.01))
+    fc_b2 = tf.Variable(tf.truncated_normal(shape=[3], stddev=0.01))
+
+    h_1 = relu(max_pool_2x2(tf.multiply(x,W_1)+b_1))
+    h_2 = relu(max_pool_2x2(tf.multiply(h_1,W_2)+b_2))
+
+
+    y = tf.nn.softmax(tf.matmul((tf.matmul(h_2,fc_1)+fc_b1),fc_2)+fc_b2)
+
+    cross_entropy = -tf.reduce_sum(y_ * tf.log(y))
+    train_step = tf.train.AdamOptimizer(0.01).minimize(cross_entropy)
+
+    ## 准确性计算
+    correct_prediction = tf.equal(tf.argmax(y, 1), tf.argmax(y_, 1))
+    accuracy = tf.reduce_mean(tf.cast(correct_prediction, "float"))
+
+    init = tf.global_variables_initializer()
+
+    x_train, x_test, y_train, y_test = train_test_split(x_dat, y_dat, test_size=0.1)
+    # print('矩阵大小为：{0}x{0}，标准差为：{1}'.format(n,std))
+    result = []
+    with tf.Session() as sess:
+        sess.run(init)
+        for i in range(1000):
+            sess.run(train_step, feed_dict={x: x_train, y_: y_train})
+            if i % 100 == 0:
+                result.append(sess.run(accuracy, feed_dict={x: x_test, y_: y_test}))
+                # print('迭代次数：%d,测试准确性：%.2f，训练准确性：%.2f'
+                #       % (i, sess.run(accuracy, feed_dict={x: x_test, y_: y_test}),
+                #                                          sess.run(accuracy, feed_dict={x: x_train, y_: y_train})))
+    return result
+
+def linear_test(n,std):
+    '''
+
+    :param n: 生成矩阵的大小
+    :param std: 随机数的标准差
+    :return: 准确性
+    '''
+    x_dat, y_dat = generate_test_data(n,std)
+    x = tf.placeholder(tf.float32, [None, n, n])
+    y_ = tf.placeholder(tf.float32, [None, 3])
+
+    linear_x = tf.reshape(x, [-1, n * n])
+
+    W = tf.Variable(tf.truncated_normal(shape=[n * n, 3], stddev=0.01))
+    b = tf.Variable(tf.truncated_normal(shape=[3], stddev=0.01))
+
+    y = tf.nn.softmax(tf.matmul(linear_x, W) + b)
+
+    cross_entropy = -tf.reduce_sum(y_ * tf.log(y))
+    train_step = tf.train.AdamOptimizer(0.01).minimize(cross_entropy)
+
+    ## 准确性计算
+    correct_prediction = tf.equal(tf.argmax(y, 1), tf.argmax(y_, 1))
+    accuracy = tf.reduce_mean(tf.cast(correct_prediction, "float"))
+
+    init = tf.global_variables_initializer()
+
+    x_train, x_test, y_train, y_test = train_test_split(x_dat, y_dat, test_size=0.1)
+    # print('矩阵大小为：{0}x{0}，标准差为：{1}'.format(n,std))
+    result = []
+    with tf.Session() as sess:
+        sess.run(init)
+        for i in range(1000):
+            sess.run(train_step, feed_dict={x: x_train, y_: y_train})
+            if i % 100 == 0:
+                result.append(sess.run(accuracy, feed_dict={x: x_test, y_: y_test}))
+                # print('迭代次数：%d,测试准确性：%.2f，训练准确性：%.2f'
+                #       % (i, sess.run(accuracy, feed_dict={x: x_test, y_: y_test}),
+                #                                          sess.run(accuracy, feed_dict={x: x_train, y_: y_train})))
+    return result
 
 # 权重值的初始化
 def weight_variable(shape):
@@ -49,9 +142,9 @@ def conv2d(x,W):
     return tf.nn.conv2d(input=x,filter=W,strides=[1,1,1,1],padding='SAME')
 
 # 池化过程
-def max_pool_7x7(x):
-    return tf.nn.max_pool(x,ksize=[1,7,7,1],
-                         strides=[1,7,7,1],padding='SAME')
+def max_pool_2x2(x):
+    return tf.nn.max_pool(x,ksize=[1,2,2,1],
+                         strides=[1,2,2,1],padding='SAME')
 
 def relu(x):
     return tf.nn.relu(x)
@@ -59,65 +152,8 @@ def relu(x):
 def softmax(x):
     return tf.nn.softmax(x)
 
-def compute_accuracy(v_xs, v_ys):
-    global prediction
-    y_pre = sess.run(prediction, feed_dict={xs: v_xs, keep_prob: 1})
-    correct_prediction = tf.equal(tf.argmax(y_pre,1), tf.argmax(v_ys,1))
-    accuracy = tf.reduce_mean(tf.cast(correct_prediction, tf.float32))
-    result = sess.run(accuracy, feed_dict={xs: v_xs, ys: v_ys, keep_prob: 1})
-    return result
-
-def lv1_cnn(input_x,input_y):
-
-    t_x = tf.placeholder(tf.float32,shape=[None,460,460,1])
-    t_y = tf.placeholder(tf.float32,shape=[None,3])
-    keep_prob = tf.placeholder(tf.float32)
-
-    #第一个卷积池为3x3的卷积池，输出为7个
-    W_1 = weight_variable([3,3,1,7])
-    #经过卷积过程
-    conv1 = conv2d(t_x,W_1)
-    #池化过程
-    pool1 = max_pool_7x7(conv1)
-    #relu过程
-    relu1 = relu(pool1)
-
-    #第二个卷积池，3x3，输出为一个图
-    W_2 = weight_variable([3,3,7,1])
-    conv2 = conv2d(relu1,W_2)
-
-    #全连接层fc1
-    w_fc1 = weight_variable([66*66,1024])
-    b_fc1 = bias_variable([1024])
-    conv2_flat = tf.reshape(conv2, [-1, 66 * 66 * 1])
-    h_fc1 = tf.nn.relu(tf.matmul(conv2_flat, w_fc1) + b_fc1)
-    h_fc1_drop = tf.nn.dropout(h_fc1, keep_prob)
-
-    #全连接层fc2
-    W_fc2 = weight_variable([1024, 3])
-    b_fc2 = bias_variable([3])
-    # 直接经过softmax进行分类
-    prediction = tf.nn.softmax(tf.matmul(h_fc1_drop, W_fc2) + b_fc2)
 
 
-    cross_entropy = tf.reduce_mean(-tf.reduce_sum(t_y * tf.log(prediction),
-                                                  reduction_indices=[1]))  # loss
-    train_step = tf.train.AdamOptimizer(1e-4).minimize(cross_entropy)
-
-    init = tf.global_variables_initializer()
-
-    ## 区分训练集及测试集
-    x_train, x_test, y_train, y_test = train_test_split(input_x, input_y,
-                                                        test_size=0.2,
-                                                        random_state=1)
-
-    with tf.Session() as sess:
-        sess.run(init)
-        for i in range(10000):
-            sess.run(train_step, feed_dict={t_x: x_train, t_y: y_train, keep_prob: 0.5})
-            if i % 50 == 0:
-                print(compute_accuracy(
-                    x_test, y_test))
 
 
 
@@ -125,8 +161,7 @@ def main():
     '''
     测试流程
     '''
-    data= generate_test_data()
-    lv1_cnn(data['features'],data['classification'])
+
 
 
 
