@@ -1,4 +1,4 @@
-src/MNIST_data
-src/pdb_data
+src/MNIST_data/*
+src/pdb_data/*
 venv
 .idea/
