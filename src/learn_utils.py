@@ -52,13 +52,13 @@ def cnn_test(n,std):
     W_2 = tf.Variable(tf.truncated_normal(shape=[3, 3, 32, 64], stddev=0.01))
     b_2 = tf.Variable(tf.truncated_normal(shape=[64], stddev=0.01))
 
-    fc_1 = tf.Variable(tf.truncated_normal(shape=[64*math.floor(n/4)*math.floor(n/4),1024], stddev=0.01))
+    fc_1 = tf.Variable(tf.truncated_normal(shape=[64*math.ceil(n/4)*math.ceil(n/4),1024], stddev=0.01))
     fc_b1 = tf.Variable(tf.truncated_normal(shape=[1024], stddev=0.01))
     fc_2 = tf.Variable(tf.truncated_normal(shape=[1024,3], stddev=0.01))
     fc_b2 = tf.Variable(tf.truncated_normal(shape=[3], stddev=0.01))
 
     h_1 = relu(max_pool_2x2(conv2d(cnn_x,W_1)+b_1))
-    h_2 = tf.reshape(relu(max_pool_2x2(conv2d(h_1,W_2)+b_2)),[-1,64*math.floor(n/4)*math.floor(n/4)])
+    h_2 = tf.reshape(relu(max_pool_2x2(conv2d(h_1,W_2)+b_2)),[-1,64*math.ceil(n/4)*math.ceil(n/4)])
 
 
     y = tf.nn.softmax(tf.matmul((tf.matmul(h_2,fc_1)+fc_b1),fc_2)+fc_b2)
