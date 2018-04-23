@@ -27,3 +27,11 @@
 - [pdf版本](docs-example/mnist_test.pdf)
 - [markdown版本](markdown_example/mnist_test/mnist_test.md)
 - [html版本](docs/mnist_test.html)
+
+## 实例4:使用线性及CNN测试模拟数据
+
+- [jupyter版本](src/optional.ipynb)
+
+>这个测试感觉失败了，因为不论是CNN还是线性其实都没有办法识别出来模型。
+>（模型其实就是均值，但是因为参数太多而样本太少，所以后
+>续可以考虑怎么样生成更多的模拟数据进行运行，看会不会有所改观）
