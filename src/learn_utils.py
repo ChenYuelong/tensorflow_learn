@@ -90,7 +90,8 @@ def cnn_test(n,std):
                 #       % (i, sess.run(accuracy, feed_dict={x: x_test, y_: y_test}),
                 #                                          sess.run(accuracy, feed_dict={x: x_train, y_: y_train})))
     end = time.time()
-    print('Use Time: %.2f' % (end-start)/1000)
+    mytime  =(end-start)*1000
+    print('Use Time: %.2f ms' % mytime)
     return result
 
 def linear_test(n,std):
