@@ -46,21 +46,24 @@ def cnn_test(n,std):
     x = tf.placeholder(tf.float32, [None, n, n])
     y_ = tf.placeholder(tf.float32, [None, 3])
 
+    cnn_conv1_out = 7
+    cnn_conv2_out = 7
+
     cnn_x = tf.reshape(x, [-1, n , n,1])
 
-    W_1 = tf.Variable(tf.truncated_normal(shape=[3 , 3, 1,7], stddev=0.01))
-    b_1 = tf.Variable(tf.truncated_normal(shape=[32], stddev=0.01))
+    W_1 = tf.Variable(tf.truncated_normal(shape=[3 , 3, 1,cnn_conv1_out], stddev=0.01))
+    b_1 = tf.Variable(tf.truncated_normal(shape=[cnn_conv1_out], stddev=0.01))
 
-    W_2 = tf.Variable(tf.truncated_normal(shape=[3, 3, 7, 7], stddev=0.01))
-    b_2 = tf.Variable(tf.truncated_normal(shape=[64], stddev=0.01))
+    W_2 = tf.Variable(tf.truncated_normal(shape=[3, 3, cnn_conv1_out, cnn_conv2_out], stddev=0.01))
+    b_2 = tf.Variable(tf.truncated_normal(shape=[cnn_conv2_out], stddev=0.01))
 
-    fc_1 = tf.Variable(tf.truncated_normal(shape=[7*math.ceil(n/4)*math.ceil(n/4),1024], stddev=0.01))
+    fc_1 = tf.Variable(tf.truncated_normal(shape=[cnn_conv2_out*math.ceil(n/4)*math.ceil(n/4),1024], stddev=0.01))
     fc_b1 = tf.Variable(tf.truncated_normal(shape=[1024], stddev=0.01))
     fc_2 = tf.Variable(tf.truncated_normal(shape=[1024,3], stddev=0.01))
     fc_b2 = tf.Variable(tf.truncated_normal(shape=[3], stddev=0.01))
 
     h_1 = relu(max_pool_2x2(conv2d(cnn_x,W_1)+b_1))
-    h_2 = tf.reshape(relu(max_pool_2x2(conv2d(h_1,W_2)+b_2)),[-1,7*math.ceil(n/4)*math.ceil(n/4)])
+    h_2 = tf.reshape(relu(max_pool_2x2(conv2d(h_1,W_2)+b_2)),[-1,cnn_conv2_out*math.ceil(n/4)*math.ceil(n/4)])
 
 
     y = tf.nn.softmax(tf.matmul((tf.matmul(h_2,fc_1)+fc_b1),fc_2)+fc_b2)
