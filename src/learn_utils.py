@@ -34,11 +34,13 @@ def generate_test_data(n,std):
         xlist.append(np.random.normal(i%3,std,size = (n,n)))
     return np.array(xlist),np.array(ylist)
 
-def cnn_test(n,std):
+def cnn_test(n,std,conv_n,fc_n):
     '''
 
     :param n: 生成矩阵的大小
     :param std: 随机数的标准差
+    :param conv_n:卷积输出数目
+    :param fc_n:第一层全连接节点数
     :return: 准确性
     '''
     start = time.time()
@@ -46,9 +48,9 @@ def cnn_test(n,std):
     x = tf.placeholder(tf.float32, [None, n, n])
     y_ = tf.placeholder(tf.float32, [None, 3])
 
-    cnn_conv1_out = 7
-    cnn_conv2_out = 7
-    fc1_out = 100
+    cnn_conv1_out = conv_n
+    cnn_conv2_out = math.ceil(1.2*conv_n)
+    fc1_out = fc_n
 
     cnn_x = tf.reshape(x, [-1, n , n,1])
 
@@ -90,9 +92,11 @@ def cnn_test(n,std):
                 # print('迭代次数：%d,测试准确性：%.2f，训练准确性：%.2f'
                 #       % (i, sess.run(accuracy, feed_dict={x: x_test, y_: y_test}),
                 #                                          sess.run(accuracy, feed_dict={x: x_train, y_: y_train})))
+        train_acc = sess.run(accuracy,feed_dict={x: x_train, y_: y_train})
     end = time.time()
     mytime  =(end-start)
-    print('Use Time: %.2f s and final accuracy is %.2f%%' % (mytime,result[-1]*100))
+    print('Use Time: %.2f s, train accuracy is %.2f%% and test accuracy is %.2f%%'
+          % (mytime,train_acc*100,result[-1]*100))
 
     return result
 
