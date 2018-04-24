@@ -48,6 +48,7 @@ def cnn_test(n,std):
 
     cnn_conv1_out = 7
     cnn_conv2_out = 7
+    fc1_out = 100
 
     cnn_x = tf.reshape(x, [-1, n , n,1])
 
@@ -57,9 +58,9 @@ def cnn_test(n,std):
     W_2 = tf.Variable(tf.truncated_normal(shape=[3, 3, cnn_conv1_out, cnn_conv2_out], stddev=0.01))
     b_2 = tf.Variable(tf.truncated_normal(shape=[cnn_conv2_out], stddev=0.01))
 
-    fc_1 = tf.Variable(tf.truncated_normal(shape=[cnn_conv2_out*math.ceil(n/4)*math.ceil(n/4),1024], stddev=0.01))
-    fc_b1 = tf.Variable(tf.truncated_normal(shape=[1024], stddev=0.01))
-    fc_2 = tf.Variable(tf.truncated_normal(shape=[1024,3], stddev=0.01))
+    fc_1 = tf.Variable(tf.truncated_normal(shape=[cnn_conv2_out*math.ceil(n/4)*math.ceil(n/4),fc1_out], stddev=0.01))
+    fc_b1 = tf.Variable(tf.truncated_normal(shape=[fc1_out], stddev=0.01))
+    fc_2 = tf.Variable(tf.truncated_normal(shape=[fc1_out,3], stddev=0.01))
     fc_b2 = tf.Variable(tf.truncated_normal(shape=[3], stddev=0.01))
 
     h_1 = relu(max_pool_2x2(conv2d(cnn_x,W_1)+b_1))
@@ -91,7 +92,7 @@ def cnn_test(n,std):
                 #                                          sess.run(accuracy, feed_dict={x: x_train, y_: y_train})))
     end = time.time()
     mytime  =(end-start)
-    print('Use Time: %.2f s and final accuracy is %.2f' % (mytime,result[-1]*100))
+    print('Use Time: %.2f s and final accuracy is %.2f%%' % (mytime,result[-1]*100))
 
     return result
 
