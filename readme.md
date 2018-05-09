@@ -39,7 +39,14 @@
 
 ## 实例5:利用CNN来实现kaggle上的蛋白质家族分类
 
-**使用本方法的时候，需要下载一些数据，放在本库的外层，就是和docs等目录同层**
+**使用本方法的时候，需要下载一些数据，放在src目录下**
+
+详情可见.gitignore文件的忽略
+
+>src/MNIST_data/*
+>src/pdb_data/*
+
+就是放在这层
 
 数据下载连接为：[百度网盘](https://pan.baidu.com/s/1A1dgfbdVWV3QjqMLAFYhaA)
 
